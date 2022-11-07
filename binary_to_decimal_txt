@@ -1,0 +1,53 @@
+|   Binary to decimal converter
+
+IN N                        | request number of bits
+STO N
+
+| condition: if n = 0, end loop
+| else, decrement by 1 & request input for current bit
+FORLOOP:    LDA N   
+            BRZ OUT         | if N = 0, print final result
+            SUB ONE         | else, decrease counter by 1
+            STO N
+
+            IN              | request input for current bit
+            BRZ OFF         | if current bit = 0
+                            |   then branch to "OFF"
+                            | else, continue to ON
+
+
+|       Current bit is 1
+| Add current bit conversion to TOTAL
+| Double current bit conversion & store for next bit power value
+| Return to start of loop
+ON:         LDA BCONVERT
+            ADD TOTAL
+            STO TOTAL
+|--------------------------------------------------------------------
+| this section can be removed but is kept for readability
+            LDA BCONVERT
+            ADD BCONVERT    | double power and save new value
+            STO BCONVERT
+            BR FORLOOP      | repeat forloop for next bit
+|--------------------------------------------------------------------
+
+|       Current bit is 0
+| LEAVE TOTAL (running sum) UNCHANGED
+| Double current bit conversion & store for next bit power value
+| Return to start of loop
+OFF:        LDA BCONVERT    | double power and save new value
+            ADD BCONVERT
+            STO BCONVERT
+            BR FORLOOP      | go back to forloop
+
+
+OUT:        LDA TOTAL       | print final result/total 
+            OUT
+            HLT
+
+|                Data storage
+
+ONE:        DAT 001 |   number 1, used to decrement
+BCONVERT:   DAT 001 |   stores current power/bit conversion, e.g. stores 32 for 2^5
+N:          DAT 000 |   number of bits input & decreasing counter
+TOTAL:      DAT 000 |   running sum of decimal conversions for valid bits
